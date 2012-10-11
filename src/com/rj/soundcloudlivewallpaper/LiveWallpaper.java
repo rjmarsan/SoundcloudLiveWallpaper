@@ -1,13 +1,10 @@
 package com.rj.soundcloudlivewallpaper;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -44,6 +41,7 @@ public class LiveWallpaper extends WallpaperService {
     class WaveformEngine extends Engine {
 
         private float mOffset;
+        private boolean mVisible;
         private BackgroundManager manager;
 
         private final Runnable mDrawCube = new Runnable() {
@@ -79,6 +77,7 @@ public class LiveWallpaper extends WallpaperService {
 
         @Override
         public void onVisibilityChanged(boolean visible) {
+        	mVisible = visible;
             if (visible) {
                 start();
             } else {
@@ -100,6 +99,7 @@ public class LiveWallpaper extends WallpaperService {
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
+        	mVisible = false; 
             super.onSurfaceDestroyed(holder);
             stop();
         }
@@ -139,12 +139,18 @@ public class LiveWallpaper extends WallpaperService {
                 c = holder.lockCanvas();
                 if (c != null) {
                     // draw something
+//                	Log.d("Wallpaper", "Drawing: ");
                 	manager.draw(c, mOffset);
                 }
             } finally {
                 if (c != null) holder.unlockCanvasAndPost(c);
             }
 
+            // Reschedule the next redraw
+            mHandler.removeCallbacks(mDrawCube);
+            if (mVisible) {
+                mHandler.postDelayed(mDrawCube, 1000 / 30); //this is where i'd optimize. no need to be so quick.
+            }
         }
 
 

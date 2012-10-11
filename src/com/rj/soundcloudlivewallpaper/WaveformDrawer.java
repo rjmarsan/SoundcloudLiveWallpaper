@@ -13,6 +13,8 @@ public class WaveformDrawer {
 
 	Bitmap waveform;
 	Bitmap processedWaveform;
+	Bitmap oldProcessedWaveform;
+	ColorsMap map = new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
 	Context mContext;
 	Paint paint;
 	int width = -1;
@@ -112,8 +114,8 @@ public class WaveformDrawer {
 		
 		
         c.save();
-        c.drawColor(0xfff8350e);
-        if (waveform != null) {
+        c.drawColor(map.getColor());
+        if (processedWaveform != null) {
         	float offset = mOffset*-(processedWaveform.getWidth()-c.getClipBounds().width());
         	c.drawBitmap(processedWaveform, offset, 0, paint);
 		
