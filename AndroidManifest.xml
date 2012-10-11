@@ -24,7 +24,7 @@
 
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@xml/cube1" />
+                android:resource="@xml/wallpaper" />
         </service>
     
     </application>
