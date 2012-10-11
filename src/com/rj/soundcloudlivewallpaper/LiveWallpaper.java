@@ -35,34 +35,37 @@ public class LiveWallpaper extends WallpaperService {
     }
 
     
-    public WaveformDrawer createWaveformDrawer() {
-    	WaveformDrawer drawer = new WaveformDrawer(getApplicationContext());
-    	drawer.setWaveform(BitmapFactory.decodeResource(getResources(), R.drawable.demowaveform));
-    	
-    	
-    	return drawer;
+    
+    public BackgroundManager getBackgroundManager() {
+    	return new BackgroundManager(getApplicationContext());
     }
     
     
     class WaveformEngine extends Engine {
 
         private float mOffset;
-        private WaveformDrawer drawer;
+        private BackgroundManager manager;
 
         private final Runnable mDrawCube = new Runnable() {
             public void run() {
                 drawFrame();
             }
         };
-        private boolean mVisible;
+        //allows the manager to trigger draw requests.
+        private final Runnable mRequestDrawCube = new Runnable() {
+        	public void run() {
+        		mHandler.post(mDrawCube);
+        	}
+        };
 
         WaveformEngine() {
+        	manager = getBackgroundManager();
+        	manager.setRequestDrawRunnable(mRequestDrawCube);
         }
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
-            drawer = createWaveformDrawer();
             // By default we don't get touch events, so enable them.
             //setTouchEventsEnabled(true); //do we need this?
         }
@@ -71,12 +74,11 @@ public class LiveWallpaper extends WallpaperService {
         public void onDestroy() {
             super.onDestroy();
             stop();
-            if (drawer != null) drawer.cleanup();
+            manager.cleanup();
         }
 
         @Override
         public void onVisibilityChanged(boolean visible) {
-            mVisible = visible;
             if (visible) {
                 start();
             } else {
@@ -87,6 +89,7 @@ public class LiveWallpaper extends WallpaperService {
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
+            manager.resize(width, height);
             start();
         }
 
@@ -98,7 +101,6 @@ public class LiveWallpaper extends WallpaperService {
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
             super.onSurfaceDestroyed(holder);
-            mVisible = false;
             stop();
         }
 
@@ -110,8 +112,10 @@ public class LiveWallpaper extends WallpaperService {
 
         private void stop() {
         	mHandler.removeCallbacks(mDrawCube);
+        	manager.stop();
         }
         private void start() {
+        	manager.start();
         	drawFrame();
         }
         
@@ -135,17 +139,12 @@ public class LiveWallpaper extends WallpaperService {
                 c = holder.lockCanvas();
                 if (c != null) {
                     // draw something
-                	drawer.draw(c, mOffset);
+                	manager.draw(c, mOffset);
                 }
             } finally {
                 if (c != null) holder.unlockCanvasAndPost(c);
             }
 
-            // Reschedule the next redraw
-            mHandler.removeCallbacks(mDrawCube);
-            if (mVisible) {
-                mHandler.postDelayed(mDrawCube, 1000 / 25); //this is where i'd optimize. no need to be so quick.
-            }
         }
 
 
