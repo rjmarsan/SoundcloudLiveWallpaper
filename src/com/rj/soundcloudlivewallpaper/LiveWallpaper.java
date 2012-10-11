@@ -1,5 +1,6 @@
 package com.rj.soundcloudlivewallpaper;
 
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -35,7 +36,11 @@ public class LiveWallpaper extends WallpaperService {
 
     
     public WaveformDrawer createWaveformDrawer() {
-    	return new WaveformDrawer(getApplicationContext());
+    	WaveformDrawer drawer = new WaveformDrawer(getApplicationContext());
+    	drawer.setWaveform(BitmapFactory.decodeResource(getResources(), R.drawable.demowaveform));
+    	
+    	
+    	return drawer;
     }
     
     
@@ -65,7 +70,7 @@ public class LiveWallpaper extends WallpaperService {
         @Override
         public void onDestroy() {
             super.onDestroy();
-            mHandler.removeCallbacks(mDrawCube);
+            stop();
             if (drawer != null) drawer.cleanup();
         }
 
@@ -73,16 +78,16 @@ public class LiveWallpaper extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
             mVisible = visible;
             if (visible) {
-                drawFrame();
+                start();
             } else {
-                mHandler.removeCallbacks(mDrawCube);
+                stop();
             }
         }
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
-            drawFrame();
+            start();
         }
 
         @Override
@@ -94,16 +99,21 @@ public class LiveWallpaper extends WallpaperService {
         public void onSurfaceDestroyed(SurfaceHolder holder) {
             super.onSurfaceDestroyed(holder);
             mVisible = false;
-            mHandler.removeCallbacks(mDrawCube);
+            stop();
         }
 
         @Override
-        public void onOffsetsChanged(float xOffset, float yOffset,
-                float xStep, float yStep, int xPixels, int yPixels) {
+        public void onOffsetsChanged(float xOffset, float yOffset, float xStep, float yStep, int xPixels, int yPixels) {
             mOffset = xOffset;
             drawFrame();
         }
 
+        private void stop() {
+        	mHandler.removeCallbacks(mDrawCube);
+        }
+        private void start() {
+        	drawFrame();
+        }
         
         @Override
         public Bundle onCommand(String action, int x, int y, int z,
