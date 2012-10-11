@@ -52,7 +52,7 @@ public class ColorsMap {
 			return colors[currentColorIndex];
 		}
 		float ratio = (float)diff/(float)transitionms;
-		Log.d("ColorsMap", "Ratio: "+ratio);
+		//Log.d("ColorsMap", "Ratio: "+ratio);
 		int color1 = colors[currentColorIndex];
 		int color2 = colors[nextColorIndex];
 		return interpolateColor(color1,color2,ratio);

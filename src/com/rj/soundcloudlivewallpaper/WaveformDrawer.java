@@ -1,10 +1,10 @@
 package com.rj.soundcloudlivewallpaper;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
-import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
@@ -51,12 +51,14 @@ public class WaveformDrawer {
 	 */
 	private void setAndPreprocessBitmap(Bitmap bitmap) {
 		if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) return;
+		//if (waveform != null && waveform != bitmap) waveform.recycle();
 		waveform = bitmap;
 		Bitmap resize = resizeBitmap(bitmap);
 		Bitmap blurry = makeBlurry(resize, 10);
 		
-		
+		Bitmap oldwaveform = processedWaveform;
 		processedWaveform = combineImages(resize,blurry);
+		if (oldwaveform != null) oldwaveform.recycle();
 		resize.recycle();
 		blurry.recycle();
 	}
@@ -70,6 +72,8 @@ public class WaveformDrawer {
 		float usedWidthRatio = (float)amountOfWidthWeWant/(float)calculatedwidth;
 
 		int usedWidthOfOriginal = (int)(bitmap.getWidth()*usedWidthRatio);
+		float offset = new Random().nextFloat();
+		float left = offset*(bitmap.getWidth()-usedWidthOfOriginal);
 		Bitmap clippedbitmap = Bitmap.createBitmap(bitmap, 0, 0, usedWidthOfOriginal, bitmap.getHeight());
 		applyAlphaToBitmap(clippedbitmap, 0x8F000000);
 		

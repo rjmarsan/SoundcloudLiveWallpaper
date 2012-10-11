@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,6 +20,8 @@ public class BackgroundManager {
 	Context mContext;
 	WaveformDrawer drawer;
 	Runnable requestDrawRunnable;
+	long timeOfLastRequest;
+	long timeBetweenForcedUpdates = 5*1000;
 	
 	Handler requestHandler = new Handler();
 	
@@ -52,7 +55,7 @@ public class BackgroundManager {
 	 * Starts the process of downloading images, etc. can be called many times.
 	 */
 	public void start() {
-		new RandomWaveformTask().execute();
+		requestUpdate();
 	}
 	
 	/**
@@ -72,6 +75,22 @@ public class BackgroundManager {
 	}
 	
 	
+	public void requestUpdate() {
+		long now = System.currentTimeMillis();
+		if (now - timeOfLastRequest < timeBetweenForcedUpdates) return; //wait until later.
+		Log.d("BackgroundManager", "Updating now");
+		timeOfLastRequest = now;
+		new RandomWaveformTask().execute();
+	}
+	
+	public void scheduleUpdate() {
+		requestHandler.postDelayed(new Runnable() {
+			public void run() {
+				requestUpdate();
+			}
+		}, timeBetweenForcedUpdates);
+	}
+	
 	
 	private final static String[] usernames = {
 		"ableton"
@@ -82,13 +101,18 @@ public class BackgroundManager {
 			String username = usernames[0];
 			try {
 				List<String> waveforms = SoundcloudApi.getWaveformUrlsForUserFavorites(username);
-				setBitmap(waveforms.get(0));
+				setBitmap(pickRandomFromList(waveforms));
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
-			
+			scheduleUpdate();
 			return null;
 		}
+	}
+	
+	private String pickRandomFromList(List<String> list) {
+		Random r = new Random();
+		return list.get(r.nextInt(list.size()));
 	}
 	
 	public Bitmap fetchBitmap(String url) throws MalformedURLException, IOException {
