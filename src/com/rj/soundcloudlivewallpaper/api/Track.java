@@ -16,4 +16,8 @@ public class Track {
 		waveformUrl = backingJson.getString(WAVEFORM_URL_KEY);
 		permalinkUrl = backingJson.getString(PERMALINK_URL_KEY);
 	}
+	public Track(String waveformurl, String permalink) {
+		this.waveformUrl = waveformurl;
+		this.permalinkUrl = permalink;
+	}
 }

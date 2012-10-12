@@ -1,5 +1,8 @@
 package com.rj.soundcloudlivewallpaper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -26,9 +29,14 @@ public class BackgroundManager {
 	WaveformDrawer2 drawer;
 	Runnable requestDrawRunnable;
 	long timeOfLastRequest;
-	long timeBetweenForcedUpdates = 15*1000;
+	long timeBetweenForcedUpdates = 15*1000L;
 	
+	long timeSinceArtistUpdate;
+	List<Track> selectedTracks;
+	String selectedArtist;
 	Track selectedTrack;
+	
+	long durationArtist = 60*1000L;
 	
 	Handler requestHandler = new Handler();
 	boolean stopped = false;
@@ -86,7 +94,7 @@ public class BackgroundManager {
 	
 	public void clicked() {
 		Log.d(TAG, "Clicked! ");
-		if (selectedTrack != null) {
+		if (selectedTrack != null && selectedTrack.permalinkUrl != null) {
 			Intent intent = new Intent(Intent.ACTION_VIEW);                  
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.setData(android.net.Uri.parse(selectedTrack.permalinkUrl));
@@ -112,29 +120,74 @@ public class BackgroundManager {
 	}
 	
 	
-	private final static String[] usernames = {
-		"ableton"
+	private final static String[] artists = {
+		"ableton", 
+		"indigolab", 
+		"franceinter", 
+		"jagwar-ma", 
+		"hunter-hoburg", 
+		"max-richter", 
+		"siansanderson", 
+		"viciousminuteshour", 
+		"glacierface", 
+		"brian-hoffer", 
+		"tedxglobalmusicproject", 
+		"blondes"
 	};
 	public class RandomWaveformTask extends AsyncTask<Void,Void,Void> {
 		@Override
 		protected Void doInBackground(Void... params) {
-			String username = usernames[0];
+			String artist = artists[0];
 			try {
-				List<Track> waveforms = SoundcloudApi.getTracksForUserFavorites(username);
-				Track track = pickRandomFromList(waveforms);
-				selectTrack(track);
+				//try to download album art.
+				List<Track> tracks = selectedTracks;
+				if (tracks == null || timeToGetNewArtist()) {
+					tracks = SoundcloudApi.getTracksForUserFavorites(artist);
+				}
+				Track track = pickRandomFromList(tracks);
+				selectTrack(track, tracks, artist);
 			} catch (Exception e) {
 				e.printStackTrace();
+				//well, let's see if we can grab one from the cache dir.
+				File[] files = getCacheDir().listFiles();
+				File file;
+				if (files.length > 0) {
+					file = files[new Random().nextInt(files.length)];
+				} else {
+					file = new File(getCacheDir(), "default.png");
+					try {
+						Utils.copyFile(mContext.getAssets().open("default.png"), new FileOutputStream(file));
+					} catch (Exception e1) {
+						//well this is bad.
+						e1.printStackTrace();
+					} 
+				}
+				try {
+					selectTrack(new Track(Uri.fromFile(file).toString(), null),selectedTracks,selectedArtist);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					//well... now there's Nothing we can do.
+				}
 			} 
 			scheduleUpdate();
 			return null;
 		}
 	}
 	
-	private void selectTrack(Track track) throws IOException {
+	private void selectTrack(Track track, List<Track> tracks, String artist) throws IOException {
 		setBitmap(track.waveformUrl);
 		
 		this.selectedTrack = track;
+		this.selectedTracks = tracks;
+		if (selectedArtist == null || artist.equals(this.selectedArtist) == false) {
+			this.timeSinceArtistUpdate = System.currentTimeMillis();
+		}
+		this.selectedArtist = artist;
+		
+	}
+	
+	private boolean timeToGetNewArtist() {
+		return System.currentTimeMillis() - this.timeSinceArtistUpdate > this.durationArtist;
 	}
 	
 	private <T> T pickRandomFromList(List<T> list) {
@@ -150,9 +203,37 @@ public class BackgroundManager {
 	
 	public void setBitmap(String url) throws MalformedURLException, IOException {
 		Bitmap bitmap = fetchBitmap(url);
-		WaveformProcessor.getWaveformFromBitmap(bitmap);
 		drawer.setWaveform(bitmap);
-		requestDraw();
+		saveBitmap(url, bitmap);
+	}
+	
+	private void saveBitmap(String url, Bitmap bitmap) {
+		try {
+			File outfile = new File(getCacheDir(), url.hashCode()+".png");
+			Log.d(TAG, "Saving file to "+outfile);
+			FileOutputStream out = new FileOutputStream(outfile);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+			trimCache();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	private File getCacheDir() {
+		return mContext.getCacheDir();
 	}
 
+	private void trimCache() {
+		File cache = getCacheDir();
+		int max_size = 1000 * 1000; //1MB
+		int size = 0;
+	    //clear SD cache
+	    File[] files = cache.listFiles();
+	    for (File f:files) {
+	        size += f.length();
+	        if (size > max_size) {
+	        	Log.d(TAG, "Removing item from cache: "+f);
+	        	f.delete();
+	        }
+	    }
+	}
 }
