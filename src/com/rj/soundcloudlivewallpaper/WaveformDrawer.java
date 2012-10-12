@@ -5,11 +5,10 @@ import java.util.Random;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
-import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 public class WaveformDrawer {
 
@@ -120,19 +119,26 @@ public class WaveformDrawer {
         	float offset = mOffset*-(processedWaveform.getWidth()-c.getClipBounds().width());
         	
         	long time = System.currentTimeMillis();
+        	
+        	
         	if (time - timeSinceTransition < transitionTime) {
         		//transition mode.
         		float progress = (float)(time-timeSinceTransition)/(float)transitionTime;
         		displaypaint.setAlpha((int)((1-progress)*255));
+            	long before = System.currentTimeMillis();
             	if (oldProcessedWaveform != null) c.drawBitmap(oldProcessedWaveform, offset, 0, displaypaint);
             	displaypaint.setAlpha((int)(progress*255));
             	c.drawBitmap(processedWaveform, offset, 0, displaypaint);
+            	long after = System.currentTimeMillis();
+            	Log.d("WaveformDrawer", "Time to draw transition: "+(after-before));
         	} else {
 //        		int ms = Math.abs((int)(time % 5000) - 2500);
 //        		displaypaint.setAlpha(200+ms/50);
         		displaypaint.setAlpha(255);
-            	c.drawBitmap(processedWaveform, offset, 0, displaypaint);
-
+        		long before = System.currentTimeMillis();
+            	c.drawBitmap(processedWaveform, offset, 0, null);
+            	long after = System.currentTimeMillis();
+            	Log.d("WaveformDrawer", "Time to draw bitmap: "+(after-before));
         	}
         	
         	
