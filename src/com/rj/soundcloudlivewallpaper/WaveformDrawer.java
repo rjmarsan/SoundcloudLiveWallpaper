@@ -31,11 +31,11 @@ public class WaveformDrawer {
 	}
 	
 	public void cleanup() {
-		waveform.recycle();
+		if (waveform != null) waveform.recycle();
 		waveform = null;
-		processedWaveform.recycle();
+		if (processedWaveform != null) processedWaveform.recycle();
 		processedWaveform = null;
-		oldProcessedWaveform.recycle();
+		if (oldProcessedWaveform != null) oldProcessedWaveform.recycle();
 		oldProcessedWaveform = null;
 	}
 	

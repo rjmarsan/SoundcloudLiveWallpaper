@@ -18,7 +18,7 @@ import android.util.Log;
 public class BackgroundManager {
 	
 	Context mContext;
-	WaveformDrawer drawer;
+	WaveformDrawer2 drawer;
 	Runnable requestDrawRunnable;
 	long timeOfLastRequest;
 	long timeBetweenForcedUpdates = 5*1000;
@@ -32,8 +32,8 @@ public class BackgroundManager {
 	}
 	
 	
-    private WaveformDrawer createWaveformDrawer() {
-    	WaveformDrawer drawer = new WaveformDrawer(mContext);
+    private WaveformDrawer2 createWaveformDrawer() {
+    	WaveformDrawer2 drawer = new WaveformDrawer2(mContext);
     	//drawer.setWaveform(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.demowaveform));
     	
     	return drawer;
@@ -126,6 +126,7 @@ public class BackgroundManager {
 	
 	public void setBitmap(String url) throws MalformedURLException, IOException {
 		Bitmap bitmap = fetchBitmap(url);
+		WaveformProcessor.getWaveformFromBitmap(bitmap);
 		drawer.setWaveform(bitmap);
 		requestDraw();
 	}
