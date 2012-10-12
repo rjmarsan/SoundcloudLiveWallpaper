@@ -1,7 +1,6 @@
 package com.rj.soundcloudlivewallpaper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +14,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -28,15 +29,19 @@ public class BackgroundManager {
 	Context mContext;
 	WaveformDrawer2 drawer;
 	Runnable requestDrawRunnable;
+	
 	long timeOfLastRequest;
-	long timeBetweenForcedUpdates = 15*1000L;
+	long timeBetweenForcedUpdatesWIFI = 15*1000L;
+	long timeBetweenForcedUpdates3G = 30*1000L;
+	long timeBetweenForcedUpdates = timeBetweenForcedUpdatesWIFI;
+	
+	long durationArtist = 60*1000L;
 	
 	long timeSinceArtistUpdate;
 	List<Track> selectedTracks;
 	String selectedArtist;
 	Track selectedTrack;
 	
-	long durationArtist = 60*1000L;
 	
 	Handler requestHandler = new Handler();
 	boolean stopped = false;
@@ -49,8 +54,6 @@ public class BackgroundManager {
 	
     private WaveformDrawer2 createWaveformDrawer() {
     	WaveformDrawer2 drawer = new WaveformDrawer2(mContext);
-    	//drawer.setWaveform(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.demowaveform));
-    	
     	return drawer;
     }
     
@@ -106,9 +109,10 @@ public class BackgroundManager {
 		if (stopped) return; //no reason at all.
 		long now = System.currentTimeMillis();
 		if (now - timeOfLastRequest < timeBetweenForcedUpdates) return; //wait until later.
-		Log.d(TAG, "Updating now");
+		Log.d(TAG, "Updating now "+timeBetweenForcedUpdates);
 		timeOfLastRequest = now;
 		new RandomWaveformTask().execute();
+		checkNetworkState();
 	}
 	
 	public void scheduleUpdate() {
@@ -117,6 +121,23 @@ public class BackgroundManager {
 				requestUpdate();
 			}
 		}, timeBetweenForcedUpdates);
+	}
+	
+	public void checkNetworkState() {
+		try {
+			ConnectivityManager connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE); 
+			boolean isMobile = networkInfo.isConnected();
+			if (isMobile) {
+				timeBetweenForcedUpdates = timeBetweenForcedUpdates3G;
+			} else {
+				timeBetweenForcedUpdates = timeBetweenForcedUpdatesWIFI;
+			}
+		} catch (Exception e) {
+			//we're probably on wifi and this is a tablet.
+			timeBetweenForcedUpdates = timeBetweenForcedUpdatesWIFI;
+		}
+
 	}
 	
 	
