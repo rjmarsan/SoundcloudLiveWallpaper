@@ -24,6 +24,7 @@ public class BackgroundManager {
 	long timeBetweenForcedUpdates = 5*1000;
 	
 	Handler requestHandler = new Handler();
+	boolean stopped = false;
 	
 	public BackgroundManager(Context context) {
 		this.mContext = context;
@@ -55,6 +56,7 @@ public class BackgroundManager {
 	 * Starts the process of downloading images, etc. can be called many times.
 	 */
 	public void start() {
+		stopped = false;
 		requestUpdate();
 	}
 	
@@ -62,7 +64,7 @@ public class BackgroundManager {
 	 * Stops the process of downloading images, etc. can be called many times.
 	 */
 	public void stop() {
-		
+		stopped = true;
 	}
 	
 	public void cleanup() {
@@ -76,6 +78,7 @@ public class BackgroundManager {
 	
 	
 	public void requestUpdate() {
+		if (stopped) return; //no reason at all.
 		long now = System.currentTimeMillis();
 		if (now - timeOfLastRequest < timeBetweenForcedUpdates) return; //wait until later.
 		Log.d("BackgroundManager", "Updating now");
