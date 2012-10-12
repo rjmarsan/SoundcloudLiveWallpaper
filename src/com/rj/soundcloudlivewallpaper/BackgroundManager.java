@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Random;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -84,6 +86,12 @@ public class BackgroundManager {
 	
 	public void clicked() {
 		Log.d(TAG, "Clicked! ");
+		if (selectedTrack != null) {
+			Intent intent = new Intent(Intent.ACTION_VIEW);                  
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setData(android.net.Uri.parse(selectedTrack.permalinkUrl));
+			mContext.startActivity(intent);
+		}
 	}
 	
 	public void requestUpdate() {

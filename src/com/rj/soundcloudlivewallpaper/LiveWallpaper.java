@@ -14,7 +14,8 @@ import android.view.SurfaceHolder;
  *
  */
 public class LiveWallpaper extends WallpaperService {
-
+	public final static String TAG = "LiveWallpaper";
+	
     private final Handler mHandler = new Handler();
     
     @Override
@@ -66,7 +67,7 @@ public class LiveWallpaper extends WallpaperService {
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
             // By default we don't get touch events, so enable them.
-            //setTouchEventsEnabled(true); //do we need this?
+            setTouchEventsEnabled(true); //do we need this?
         }
 
         @Override
@@ -122,6 +123,7 @@ public class LiveWallpaper extends WallpaperService {
         
         @Override
         public Bundle onCommand(String action, int x, int y, int z, Bundle extras, boolean resultRequested) {
+        	Log.d(TAG, "On command: "+action);
         	if (action.equals(WallpaperManager.COMMAND_TAP)) {
         		manager.clicked();
         	}
