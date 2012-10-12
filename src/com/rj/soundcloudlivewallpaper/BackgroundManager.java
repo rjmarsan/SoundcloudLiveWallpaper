@@ -21,7 +21,7 @@ public class BackgroundManager {
 	WaveformDrawer2 drawer;
 	Runnable requestDrawRunnable;
 	long timeOfLastRequest;
-	long timeBetweenForcedUpdates = 5*1000;
+	long timeBetweenForcedUpdates = 15*1000;
 	
 	Handler requestHandler = new Handler();
 	boolean stopped = false;
