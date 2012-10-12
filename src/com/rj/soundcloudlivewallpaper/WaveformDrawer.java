@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
@@ -70,12 +71,13 @@ public class WaveformDrawer {
 		width = width * horizontalscale;
 		float[] points = new float[waveform.length * 4]; //2 points for every bar. 2 coords per point.
 		this.linegap = width/waveform.length;
+		float scale = 0.9f;
 		float halfheight = height/2f;
 		for (int i=0; i<points.length; i+=4) {
 			float value = waveform[i/4];
 			float left = linegap * i;
-			float top = halfheight - halfheight * value;
-			float bottom = halfheight + halfheight * value;
+			float top = halfheight - halfheight * value * scale;
+			float bottom = halfheight + halfheight * value * scale;
 			points[i+0] = left;
 			points[i+1] = top;
 			points[i+2] = left;
@@ -119,23 +121,27 @@ public class WaveformDrawer {
             //but we also need to cut down on how much we tell the canvas to draw
             //so we calculate the 'showing points', which we feed to drawLines
             
+        	linepaint.setColor(Color.argb(150, 255, 255, 255));
             long timediff = System.currentTimeMillis() - transitionStartTime;
             if (timediff <= transitionDuration) {
             	final float ratio = timediff/(float)transitionDuration;
             	
-//            	long start = System.currentTimeMillis();
+            	long start = System.currentTimeMillis();
             	
             	linepaint.setStrokeWidth((1-ratio)*strokeWidth);
+            	//linepaint.setAlpha(Math.round((1-ratio)*255));
             	if (oldpoints != null) c.drawLines(oldpoints, startingindex, showingpoints/4, linepaint);
             	
             	linepaint.setStrokeWidth(ratio*strokeWidth);
+            	//linepaint.setAlpha(Math.round(ratio*255));
             	c.drawLines(points, startingindex, showingpoints/4, linepaint);
             	
-//            	long end = System.currentTimeMillis();
-//            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
+            	long end = System.currentTimeMillis();
+            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
 
             } else {
             	linepaint.setStrokeWidth(strokeWidth);
+            	//linepaint.setAlpha(150);
             	
 //            	long start = System.currentTimeMillis();
             	c.drawLines(points, startingindex, showingpoints/4, linepaint);

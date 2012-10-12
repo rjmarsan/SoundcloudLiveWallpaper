@@ -93,6 +93,7 @@ public class BackgroundManager {
 	
 	public void clicked() {
 		Log.d(TAG, "Clicked! ");
+		//if (1 == 1) return; //short circuit FTw
 		if (selectedTrack != null && selectedTrack.permalinkUrl != null) {
 			Intent intent = new Intent(Intent.ACTION_VIEW);                  
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
