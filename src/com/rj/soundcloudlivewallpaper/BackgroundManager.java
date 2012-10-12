@@ -40,7 +40,7 @@ public class BackgroundManager {
 	long timeBetweenForcedUpdates3G = 30*1000L;
 	long timeBetweenForcedUpdates = timeBetweenForcedUpdatesWIFI;
 	
-	long durationArtist = 60*1000L;
+	long durationArtist = 15*60*1000L;
 	
 	long timeSinceArtistUpdate;
 	List<Track> selectedTracks;
