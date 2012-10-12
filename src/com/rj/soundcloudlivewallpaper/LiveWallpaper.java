@@ -1,5 +1,6 @@
 package com.rj.soundcloudlivewallpaper;
 
+import android.app.WallpaperManager;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
@@ -120,8 +121,10 @@ public class LiveWallpaper extends WallpaperService {
         }
         
         @Override
-        public Bundle onCommand(String action, int x, int y, int z,
-        		Bundle extras, boolean resultRequested) {
+        public Bundle onCommand(String action, int x, int y, int z, Bundle extras, boolean resultRequested) {
+        	if (action.equals(WallpaperManager.COMMAND_TAP)) {
+        		manager.clicked();
+        	}
         	return super.onCommand(action, x, y, z, extras, resultRequested);
         	//this is where I handle clickthrough
         }

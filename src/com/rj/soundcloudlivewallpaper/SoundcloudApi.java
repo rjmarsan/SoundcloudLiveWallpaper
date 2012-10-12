@@ -16,6 +16,8 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.rj.soundcloudlivewallpaper.api.Track;
+
 public class SoundcloudApi {
 
 	private final static String API_KEY = "fb37129b756c004bc67d51933f29c4ae";
@@ -23,7 +25,6 @@ public class SoundcloudApi {
 	private final static String SOUNDCLOUD_URL = "http://soundcloud.com";
 	private final static String TRACKS_URL = "/tracks/%s.json?client_id=%s";
 	private final static String USERS_TRACKS_URL = "/users/%s/tracks.json?client_id=%s";
-	private final static String WAVEFORM_URL_KEY = "waveform_url";
 	
 	
 	private final static String RESOLVE_URL = "/resolve.json?url=%s&client_id=%s";
@@ -56,20 +57,19 @@ public class SoundcloudApi {
 
 	public static String getWaveformUrlForTrack(int id) throws IOException, JSONException {
 		JSONObject track = getTrack(id);
-		return track.getString(WAVEFORM_URL_KEY);
+		return new Track(track).waveformUrl;
 	}
 	
-	public static List<String> getWaveformUrlsForUserFavorites(String name) throws IOException, JSONException {
+	public static List<Track> getTracksForUserFavorites(String name) throws IOException, JSONException {
 		String userid = getUserIdForName(name);
 		JSONArray tracks = getTracksFromUser(userid);
-		List<String> outlist = new ArrayList<String>();
+		List<Track> outlist = new ArrayList<Track>();
 		for (int i=0; i<tracks.length(); i++) {
-			JSONObject track = tracks.getJSONObject(i);
-			outlist.add(track.getString(WAVEFORM_URL_KEY));
+			outlist.add(new Track(tracks.getJSONObject(i)));
 		}
 		return outlist;
 	}
-	
+
 	/* some ways to get tracks */
 
 	

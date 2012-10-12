@@ -105,7 +105,7 @@ public class WaveformDrawer2 {
             if (timediff <= transitionDuration) {
             	float ratio = timediff/(float)transitionDuration;
             	
-            	long start = System.currentTimeMillis();
+//            	long start = System.currentTimeMillis();
             	
             	linepaint.setStrokeWidth((1-ratio)*strokeWidth);
             	if (oldpoints != null) c.drawLines(oldpoints, startingindex, showingpoints/4, linepaint);
@@ -113,17 +113,16 @@ public class WaveformDrawer2 {
             	linepaint.setStrokeWidth(ratio*strokeWidth);
             	c.drawLines(points, startingindex, showingpoints/4, linepaint);
             	
-            	long end = System.currentTimeMillis();
-            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
+//            	long end = System.currentTimeMillis();
+//            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
 
             } else {
             	linepaint.setStrokeWidth(strokeWidth);
             	
-            	long start = System.currentTimeMillis();
-            	//c.drawLines(points, linepaint);
+//            	long start = System.currentTimeMillis();
             	c.drawLines(points, startingindex, showingpoints/4, linepaint);
-            	long end = System.currentTimeMillis();
-            	Log.d(TAG, "total time for all those lines: "+(end-start));
+//            	long end = System.currentTimeMillis();
+//            	Log.d(TAG, "total time for all those lines: "+(end-start));
             }
             
         	
