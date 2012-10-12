@@ -11,32 +11,28 @@ import android.graphics.Rect;
 import android.util.Log;
 
 public class WaveformDrawer {
-
-	Bitmap waveform;
-	Bitmap processedWaveform;
-	Bitmap oldProcessedWaveform;
-	ColorsMap map = new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
-	Context mContext;
-	Paint paint;
-	Paint displaypaint;
+	public final String TAG = "WaveformDrawer2";
+	float[] waveform;
+	float[] points;
+	float[] oldpoints;
 	int width = -1;
 	int height = -1;
-	long timeSinceTransition;
-	long transitionTime = 2*1000L;
+	Paint linepaint;
+	int horizontalscale = 12;
+	float strokeWidth = 8;
+	float totaloffset = 0;
+	float linegap;
+	ColorsMap map = new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
+	long transitionStartTime;
+	long transitionDuration = 4*1000L;
 	
 	public WaveformDrawer(Context context) {
-		this.mContext = context;
-		paint = new Paint();
-		displaypaint = new Paint();
+		linepaint = new Paint();
+		linepaint.setStrokeWidth(strokeWidth);
+		linepaint.setAntiAlias(true);
 	}
 	
 	public void cleanup() {
-		if (waveform != null) waveform.recycle();
-		waveform = null;
-		if (processedWaveform != null) processedWaveform.recycle();
-		processedWaveform = null;
-		if (oldProcessedWaveform != null) oldProcessedWaveform.recycle();
-		oldProcessedWaveform = null;
 	}
 	
 	public void setWaveform(String path) {
@@ -45,11 +41,6 @@ public class WaveformDrawer {
 	public void setWaveform(Bitmap bitmap) {
 		setAndPreprocessBitmap(bitmap);
 	}
-	public void resize(int width, int height) {
-		this.width = width;
-		this.height = height;
-		if (waveform != null) setWaveform(waveform);
-	}
 	
 	
 	/**
@@ -57,90 +48,83 @@ public class WaveformDrawer {
 	 * @param bitmap
 	 */
 	private void setAndPreprocessBitmap(Bitmap bitmap) {
-		if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) return;
-		//if (waveform != null && waveform != bitmap) waveform.recycle();
-		waveform = bitmap;
-		
-		int scaledWidth = width*2;
-		int scaledHeight = height; //no change here.
-		int clippedWidth = getScaledWidth(scaledWidth, bitmap);
-		Bitmap clipped = clipBitmap(bitmap, clippedWidth);
-		
-		Bitmap canvasbmp = Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(canvasbmp);
-		Rect canvasrect = canvas.getClipBounds();
-		Rect clippedrect = new Rect(0, 0, clipped.getWidth(), clipped.getHeight());
-		
-		paint.setFilterBitmap(true);
-		paint.setAlpha(120);
-		canvas.drawBitmap(makeBlurry(bitmap, 3), clippedrect, canvasrect, paint);
-		paint.setFilterBitmap(false);
-		paint.setAlpha(180);
-		canvas.drawBitmap(bitmap, clippedrect, canvasrect, paint);
-
-		
-		oldProcessedWaveform = processedWaveform;
-		processedWaveform = canvasbmp;
-		timeSinceTransition = System.currentTimeMillis();
-		//if (oldwaveform != null) oldwaveform.recycle();
-		clipped.recycle();
+		waveform = WaveformProcessor.getWaveformFromBitmap(bitmap);
+		if (width > 0 && height > 0) generateLines(waveform, width, height);
 	}
 	
-	private int getScaledWidth(int targetwidth, Bitmap reference) {
-		float aspectratio = (float)reference.getWidth() / (float)reference.getHeight();
-		int calculatedwidth = (int)(height * aspectratio);
-		int amountOfWidthWeWant = targetwidth;
-		float usedWidthRatio = (float)amountOfWidthWeWant/(float)calculatedwidth;
-
-		int usedWidthOfOriginal = (int)(reference.getWidth()*usedWidthRatio);
-		return usedWidthOfOriginal;
+	
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		if (waveform != null) generateLines(waveform, width, height);
 	}
 	
-	private Bitmap clipBitmap(Bitmap bitmap, int clipWidth) {
-		float offset = new Random().nextFloat();
-		float left = offset*(bitmap.getWidth()-clipWidth);
-		Bitmap clippedbitmap = Bitmap.createBitmap(bitmap, (int)left, 0, clipWidth, bitmap.getHeight());
-		return clippedbitmap;
+	public void generateLines(float[] waveform, float width, float height) {
+		width = width * horizontalscale;
+		float[] points = new float[waveform.length * 4]; //2 points for every bar. 2 coords per point.
+		this.linegap = width/waveform.length;
+		float halfheight = height/2f;
+		for (int i=0; i<points.length; i+=4) {
+			float value = waveform[i/4];
+			float left = linegap * i;
+			float top = halfheight - halfheight * value;
+			float bottom = halfheight + halfheight * value;
+			points[i+0] = left;
+			points[i+1] = top;
+			points[i+2] = left;
+			points[i+3] = bottom;			
+		}
+		transitionStartTime = System.currentTimeMillis();
+		this.oldpoints = this.points;
+		this.points = points;
 	}
 	
-	private Bitmap makeBlurry(Bitmap bitmap, int blurry) {
-		Bitmap small = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()/blurry, bitmap.getHeight()/blurry, true);
-		return Bitmap.createScaledBitmap(small, bitmap.getWidth(), bitmap.getHeight(), true);
-	}
-	
-
 	
 	public void draw(Canvas c, float mOffset) {
 		
 		
         c.save();
         c.drawColor(map.getColor());
-        if (processedWaveform != null) {
-        	float offset = mOffset*-(processedWaveform.getWidth()-c.getClipBounds().width());
-        	
-        	long time = System.currentTimeMillis();
-        	
-        	
-        	if (time - timeSinceTransition < transitionTime) {
-        		//transition mode.
-        		float progress = (float)(time-timeSinceTransition)/(float)transitionTime;
-        		displaypaint.setAlpha((int)((1-progress)*255));
-            	long before = System.currentTimeMillis();
-            	if (oldProcessedWaveform != null) c.drawBitmap(oldProcessedWaveform, offset, 0, displaypaint);
-            	displaypaint.setAlpha((int)(progress*255));
-            	c.drawBitmap(processedWaveform, offset, 0, displaypaint);
-            	long after = System.currentTimeMillis();
-            	Log.d("WaveformDrawer", "Time to draw transition: "+(after-before));
-        	} else {
-//        		int ms = Math.abs((int)(time % 5000) - 2500);
-//        		displaypaint.setAlpha(200+ms/50);
-        		displaypaint.setAlpha(255);
-        		long before = System.currentTimeMillis();
-            	c.drawBitmap(processedWaveform, offset, 0, null);
-            	long after = System.currentTimeMillis();
-            	Log.d("WaveformDrawer", "Time to draw bitmap: "+(after-before));
-        	}
-        	
+        if (points != null) {
+            int showingpoints = points.length / horizontalscale;
+            int remainingpoints = (points.length - showingpoints);
+            int speed = 2000000;
+            totaloffset = ((float)(System.currentTimeMillis()%speed)/(float)speed * remainingpoints);
+            float position = (totaloffset);
+            int startingindex = (int) position;
+            startingindex = startingindex - startingindex % 4; //make it end on 4.
+            float residual = position - startingindex;
+
+            float left = -points[startingindex];
+            left = left - linegap*residual;
+            left = left - mOffset*linegap*showingpoints/8;
+            c.translate(left, 0);
+        	//c.scale(10, 1);
+
+            long timediff = System.currentTimeMillis() - transitionStartTime;
+            if (timediff <= transitionDuration) {
+            	float ratio = timediff/(float)transitionDuration;
+            	
+//            	long start = System.currentTimeMillis();
+            	
+            	linepaint.setStrokeWidth((1-ratio)*strokeWidth);
+            	if (oldpoints != null) c.drawLines(oldpoints, startingindex, showingpoints/4, linepaint);
+            	
+            	linepaint.setStrokeWidth(ratio*strokeWidth);
+            	c.drawLines(points, startingindex, showingpoints/4, linepaint);
+            	
+//            	long end = System.currentTimeMillis();
+//            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
+
+            } else {
+            	linepaint.setStrokeWidth(strokeWidth);
+            	
+//            	long start = System.currentTimeMillis();
+            	c.drawLines(points, startingindex, showingpoints/4, linepaint);
+//            	long end = System.currentTimeMillis();
+//            	Log.d(TAG, "total time for all those lines: "+(end-start));
+            }
+            
         	
 		
         }

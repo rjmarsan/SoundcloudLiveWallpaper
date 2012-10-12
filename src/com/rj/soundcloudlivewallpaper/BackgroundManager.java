@@ -27,7 +27,7 @@ public class BackgroundManager {
 	public final static String TAG = "BackgroundManager";
 	
 	Context mContext;
-	WaveformDrawer2 drawer;
+	WaveformDrawer drawer;
 	Runnable requestDrawRunnable;
 	
 	long timeOfLastRequest;
@@ -52,8 +52,8 @@ public class BackgroundManager {
 	}
 	
 	
-    private WaveformDrawer2 createWaveformDrawer() {
-    	WaveformDrawer2 drawer = new WaveformDrawer2(mContext);
+    private WaveformDrawer createWaveformDrawer() {
+    	WaveformDrawer drawer = new WaveformDrawer(mContext);
     	return drawer;
     }
     
