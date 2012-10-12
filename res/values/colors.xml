@@ -1,0 +1,14 @@
+<resources>
+	<color name="bar_color">#96FFFFFF</color>
+	
+	<color name="pallet1_1">#ffB81D1D</color> 
+	<color name="pallet1_2">#ffE6D1BA</color>
+	<color name="pallet1_3">#ff41C4A3</color> 
+	<color name="pallet1_4">#ff476D7A</color> 
+	<color name="pallet1_5">#ff444A78</color> 
+	<color name="pallet1_6">#ffFCAD4C</color> 
+	<color name="pallet1_7">#ffF25555</color>
+	<color name="pallet1_8">#ffF0E07D</color> 
+	<color name="pallet1_9">#ffB5CC9D</color> 
+	
+</resources>

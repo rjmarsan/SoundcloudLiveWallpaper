@@ -2,26 +2,33 @@ package com.rj.soundcloudlivewallpaper;
 
 import java.util.Random;
 
+import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 /**
  * Simple little color interpolater. it's nice.
  * @author rj
  *
  */
 public class ColorsMap {
-	public final static int[] DEFAULT_MAP = {
-		0xffB81D1D, 
-		0xffE6D1BA,
-		0xff41C4A3, 
-		0xff476D7A, 
-		0xff444A78, 
-		0xffFCAD4C, 
-		0xffF25555,
-//		0xff47263A, 
-		0xffF0E07D, 
-		0xffB5CC9D, 
+	public final static int[] DEFAULT_RESOURCES = {
+		R.color.pallet1_1,
+		R.color.pallet1_2,
+		R.color.pallet1_3,
+		R.color.pallet1_4,
+		R.color.pallet1_5,
+		R.color.pallet1_6,
+		R.color.pallet1_7,
+		R.color.pallet1_8,
+		R.color.pallet1_9,		
 	};
+	
+	public static int[] fromResources(int[] resourceids, Context context) {
+		int[] colors = new int[resourceids.length];
+		for (int i=0; i<resourceids.length; i++) {
+			colors[i] = context.getResources().getColor(resourceids[i]);
+		}
+		return colors;
+	}
 	
 	int[] colors;
 	long transitionms;

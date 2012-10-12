@@ -30,7 +30,7 @@ public class WaveformDrawer {
 	float strokeWidth = 8;
 	float totaloffset = 0;
 	float linegap;
-	ColorsMap map = new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
+	ColorsMap map;
 	long transitionStartTime;
 	long transitionDuration = 4*1000L;
 	
@@ -38,6 +38,8 @@ public class WaveformDrawer {
 		linepaint = new Paint();
 		linepaint.setStrokeWidth(strokeWidth);
 		linepaint.setAntiAlias(true);
+    	linepaint.setColor(context.getResources().getColor(R.color.bar_color));
+    	map = new ColorsMap(ColorsMap.fromResources(ColorsMap.DEFAULT_RESOURCES, context), 7000);
 	}
 	
 	public void cleanup() {
@@ -121,7 +123,6 @@ public class WaveformDrawer {
             //but we also need to cut down on how much we tell the canvas to draw
             //so we calculate the 'showing points', which we feed to drawLines
             
-        	linepaint.setColor(Color.argb(150, 255, 255, 255));
             long timediff = System.currentTimeMillis() - transitionStartTime;
             if (timediff <= transitionDuration) {
             	final float ratio = timediff/(float)transitionDuration;

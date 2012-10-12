@@ -20,7 +20,7 @@ public class BitmapWaveformDrawer {
 	Bitmap waveform;
 	Bitmap processedWaveform;
 	Bitmap oldProcessedWaveform;
-	ColorsMap map = new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
+	ColorsMap map = null;//new ColorsMap(ColorsMap.DEFAULT_MAP, 7000);
 	Context mContext;
 	Paint paint;
 	Paint displaypaint;
