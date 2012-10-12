@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
+import com.rj.soundcloudlivewallpaper.api.SoundcloudApi;
 import com.rj.soundcloudlivewallpaper.api.Track;
 
 public class BackgroundManager {
