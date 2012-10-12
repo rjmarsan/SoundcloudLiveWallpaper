@@ -10,6 +10,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+/**
+ * An old class trying to make pretty bitmaps. sad... sad world.
+ * @author rj
+ *
+ */
 public class BitmapWaveformDrawer {
 
 	Bitmap waveform;

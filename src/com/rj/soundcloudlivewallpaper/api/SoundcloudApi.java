@@ -16,9 +16,14 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-
+/**
+ * A very simple wrapper around the most basic of soundcloud apis.
+ * @author rj
+ *
+ */
 public class SoundcloudApi {
-
+	private final static String TAG = "SoundcloudApi";
+	
 	private final static String API_KEY = "fb37129b756c004bc67d51933f29c4ae";
 	private final static String API_ENDPOINT = "http://api.soundcloud.com";
 	private final static String SOUNDCLOUD_URL = "http://soundcloud.com";
@@ -27,10 +32,7 @@ public class SoundcloudApi {
 	
 	
 	private final static String RESOLVE_URL = "/resolve.json?url=%s&client_id=%s";
-//	private final static String RESOLVE_RESULT_KEY = "result";
-//	private final static String RESOLVE_RESULT_REDIRECT = "302 - Found";
 	private final static String RESOLVE_ID = "id";
-//	private final static String RESOLVE_LOCATION = "location";
 
 	
 	
@@ -40,14 +42,7 @@ public class SoundcloudApi {
 	
 	private static String getUserIdForName(String name) throws IOException, JSONException {
 		JSONObject result = getObject(API_ENDPOINT + String.format(RESOLVE_URL, SOUNDCLOUD_URL+"/"+name, API_KEY));
-//		if (RESOLVE_RESULT_REDIRECT.equals(result.getString(RESOLVE_RESULT_KEY))) {
-//			return result.getString(RESOLVE_LOCATION);
-//		} else {
-//			return result.getString()
-//		}
 		return result.getString(RESOLVE_ID);
-		//otherwise
-//		return null;
 	}
 	
 	private static JSONObject getTrack(int id) throws IOException, JSONException {
@@ -69,12 +64,6 @@ public class SoundcloudApi {
 		return outlist;
 	}
 
-	/* some ways to get tracks */
-
-	
-	
-	
-	/* *********************** */
 	
 	private static String get(String stringurl) throws IOException, JSONException {
 		URL url = new URL(stringurl);
@@ -82,7 +71,7 @@ public class SoundcloudApi {
 		try {
 			InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 			String out = stringFromInputStream(in);
-			Log.d("SoundcloudAPI", "Result for "+stringurl+": "+out);
+			Log.d(TAG, "Result for "+stringurl+": "+out);
 			return out;
 		} finally {
 			urlConnection.disconnect();

@@ -10,6 +10,13 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+/**
+ * The new and revised waveform drawer - now using more useful data!
+ * by taking the float[] data, we can make much cooler lines, etc
+ * and it's actually faster and WAY more memory efficient.
+ * @author rj
+ *
+ */
 public class WaveformDrawer {
 	public final String TAG = "WaveformDrawer2";
 	float[] waveform;
@@ -86,24 +93,35 @@ public class WaveformDrawer {
         c.save();
         c.drawColor(map.getColor());
         if (points != null) {
-            int showingpoints = points.length / horizontalscale;
-            int remainingpoints = (points.length - showingpoints);
-            int speed = 2000000;
+        	
+        	//precalculate a ton of points
+        	//whenever I'm in a draw loop, I finalize variables.
+        	//I feel this is like putting lightning-bolt stickers on a laptop and hoping it goes faster.
+            final int showingpoints = points.length / horizontalscale;
+            final int remainingpoints = (points.length - showingpoints);
+            final int speed = 2000000;
             totaloffset = ((float)(System.currentTimeMillis()%speed)/(float)speed * remainingpoints);
-            float position = (totaloffset);
+            final float position = (totaloffset);
             int startingindex = (int) position;
             startingindex = startingindex - startingindex % 4; //make it end on 4.
-            float residual = position - startingindex;
+            final float residual = position - startingindex;
 
             float left = -points[startingindex];
             left = left - linegap*residual;
             left = left - mOffset*linegap*showingpoints/8;
             c.translate(left, 0);
-        	//c.scale(10, 1);
-
+        	
+            //so it's actually worth noting exactly how this works:
+            //we have a bit bucket of data of our lines, and it's rather immutable
+            //so we can't change it every frame. what do we do instead? the opposite.
+            //move the canvas around it.
+            //hence the translate.
+            //but we also need to cut down on how much we tell the canvas to draw
+            //so we calculate the 'showing points', which we feed to drawLines
+            
             long timediff = System.currentTimeMillis() - transitionStartTime;
             if (timediff <= transitionDuration) {
-            	float ratio = timediff/(float)transitionDuration;
+            	final float ratio = timediff/(float)transitionDuration;
             	
 //            	long start = System.currentTimeMillis();
             	

@@ -51,16 +51,9 @@ public class LiveWallpaper extends WallpaperService {
                 drawFrame();
             }
         };
-        //allows the manager to trigger draw requests.
-        private final Runnable mRequestDrawCube = new Runnable() {
-        	public void run() {
-        		mHandler.post(mDrawCube);
-        	}
-        };
 
         WaveformEngine() {
         	manager = getBackgroundManager();
-        	manager.setRequestDrawRunnable(mRequestDrawCube);
         }
 
         @Override
@@ -116,11 +109,15 @@ public class LiveWallpaper extends WallpaperService {
         	mHandler.removeCallbacks(mDrawCube);
         	manager.stop();
         }
+        
         private void start() {
         	manager.start();
         	drawFrame();
         }
         
+        /**
+         * Handles the time when we interact with the wallpaper
+         */
         @Override
         public Bundle onCommand(String action, int x, int y, int z, Bundle extras, boolean resultRequested) {
         	Log.d(TAG, "On command: "+action);
@@ -128,7 +125,6 @@ public class LiveWallpaper extends WallpaperService {
         		manager.clicked();
         	}
         	return super.onCommand(action, x, y, z, extras, resultRequested);
-        	//this is where I handle clickthrough
         }
 
         /*

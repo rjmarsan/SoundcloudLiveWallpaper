@@ -24,12 +24,16 @@ import android.util.Log;
 import com.rj.soundcloudlivewallpaper.api.SoundcloudApi;
 import com.rj.soundcloudlivewallpaper.api.Track;
 
+/**
+ * Essentially the main controller for the wallpaper, it puts all the components together, and does quite a bit itself.
+ * @author rj
+ *
+ */
 public class BackgroundManager {
 	public final static String TAG = "BackgroundManager";
 	
 	Context mContext;
 	WaveformDrawer drawer;
-	Runnable requestDrawRunnable;
 	
 	long timeOfLastRequest;
 	long timeBetweenForcedUpdatesWIFI = 15*1000L;
@@ -56,15 +60,6 @@ public class BackgroundManager {
     private WaveformDrawer createWaveformDrawer() {
     	WaveformDrawer drawer = new WaveformDrawer(mContext);
     	return drawer;
-    }
-    
-    public void setRequestDrawRunnable(Runnable runnable) {
-    	this.requestDrawRunnable = runnable;
-    }
-    
-    private void requestDraw() {
-    	if (this.requestDrawRunnable != null) 
-    		requestDrawRunnable.run();
     }
     
     public void resize(int width, int height) {
@@ -142,6 +137,7 @@ public class BackgroundManager {
 	}
 	
 	
+	//TODO: make this a more interesting selection system
 	private final static String[] artists = {
 		"ableton", 
 		"indigolab", 

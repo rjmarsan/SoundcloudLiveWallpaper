@@ -4,17 +4,21 @@ import java.util.Random;
 
 import android.graphics.Color;
 import android.util.Log;
-
+/**
+ * Simple little color interpolater. it's nice.
+ * @author rj
+ *
+ */
 public class ColorsMap {
 	public final static int[] DEFAULT_MAP = {
 		0xffB81D1D, 
-//		0xffE6D1BA,
+		0xffE6D1BA,
 		0xff41C4A3, 
 		0xff476D7A, 
 		0xff444A78, 
-//		0xffFCAD4C, 
+		0xffFCAD4C, 
 		0xffF25555,
-		0xff47263A, 
+//		0xff47263A, 
 		0xffF0E07D, 
 		0xffB5CC9D, 
 	};
