@@ -1,0 +1,8 @@
+<resources>
+	<integer name="bar_transition_time">4000</integer>
+	<integer name="color_transition_time">7000</integer>
+	<integer name="horizontal_scale">12</integer>
+	<integer name="stroke_width">8</integer>
+	<integer name="bar_scale_percent">90</integer>
+					
+</resources>

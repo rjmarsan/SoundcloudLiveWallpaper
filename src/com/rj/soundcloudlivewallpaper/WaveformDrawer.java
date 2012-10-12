@@ -1,14 +1,11 @@
 package com.rj.soundcloudlivewallpaper;
 
-import java.util.Random;
-
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.Log;
 
 /**
@@ -29,17 +26,25 @@ public class WaveformDrawer {
 	int horizontalscale = 12;
 	float strokeWidth = 8;
 	float totaloffset = 0;
+	float scale = 0.9f;
 	float linegap;
 	ColorsMap map;
 	long transitionStartTime;
 	long transitionDuration = 4*1000L;
+	int  colorDuration = 7*1000;
 	
 	public WaveformDrawer(Context context) {
+		Resources res = context.getResources();
 		linepaint = new Paint();
 		linepaint.setStrokeWidth(strokeWidth);
 		linepaint.setAntiAlias(true);
-    	linepaint.setColor(context.getResources().getColor(R.color.bar_color));
-    	map = new ColorsMap(ColorsMap.fromResources(ColorsMap.DEFAULT_RESOURCES, context), 7000);
+    	linepaint.setColor(res.getColor(R.color.bar_color));
+    	transitionDuration = res.getInteger(R.integer.bar_transition_time);
+    	colorDuration = res.getInteger(R.integer.color_transition_time);
+    	horizontalscale = res.getInteger(R.integer.horizontal_scale);
+    	strokeWidth = res.getInteger(R.integer.stroke_width);
+    	scale = res.getInteger(R.integer.bar_scale_percent)/100f;
+    	map = new ColorsMap(ColorsMap.fromResources(ColorsMap.DEFAULT_RESOURCES, context), colorDuration);
 	}
 	
 	public void cleanup() {
@@ -73,7 +78,6 @@ public class WaveformDrawer {
 		width = width * horizontalscale;
 		float[] points = new float[waveform.length * 4]; //2 points for every bar. 2 coords per point.
 		this.linegap = width/waveform.length;
-		float scale = 0.9f;
 		float halfheight = height/2f;
 		for (int i=0; i<points.length; i+=4) {
 			float value = waveform[i/4];
@@ -127,7 +131,7 @@ public class WaveformDrawer {
             if (timediff <= transitionDuration) {
             	final float ratio = timediff/(float)transitionDuration;
             	
-            	long start = System.currentTimeMillis();
+            	//long start = System.currentTimeMillis();
             	
             	linepaint.setStrokeWidth((1-ratio)*strokeWidth);
             	//linepaint.setAlpha(Math.round((1-ratio)*255));
@@ -137,8 +141,8 @@ public class WaveformDrawer {
             	//linepaint.setAlpha(Math.round(ratio*255));
             	c.drawLines(points, startingindex, showingpoints/4, linepaint);
             	
-            	long end = System.currentTimeMillis();
-            	Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
+            	//long end = System.currentTimeMillis();
+            	//Log.d(TAG, "total time for all those lines (transitin): "+(end-start));
 
             } else {
             	linepaint.setStrokeWidth(strokeWidth);
