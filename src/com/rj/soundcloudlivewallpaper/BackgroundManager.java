@@ -156,11 +156,12 @@ public class BackgroundManager {
 	public class RandomWaveformTask extends AsyncTask<Void,Void,Void> {
 		@Override
 		protected Void doInBackground(Void... params) {
-			String artist = artists[0];
 			try {
 				//try to download album art.
 				List<Track> tracks = selectedTracks;
+				String artist = artists[0];
 				if (tracks == null || timeToGetNewArtist()) {
+					artist = artists[new Random().nextInt(artists.length)];
 					tracks = SoundcloudApi.getTracksForUserFavorites(artist);
 				}
 				Track track = pickRandomFromList(tracks);
