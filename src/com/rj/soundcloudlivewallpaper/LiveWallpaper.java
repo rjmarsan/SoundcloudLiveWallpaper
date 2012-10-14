@@ -60,7 +60,7 @@ public class LiveWallpaper extends WallpaperService {
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
             // By default we don't get touch events, so enable them.
-            setTouchEventsEnabled(true); //do we need this?
+            //setTouchEventsEnabled(true); //do we need this?
         }
 
         @Override

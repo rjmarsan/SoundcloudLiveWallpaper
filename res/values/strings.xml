@@ -2,4 +2,5 @@
     <string name="app_name">Soundcloud Live Wallpaper</string>
     <string name="wallpaper_name">Soundcloud</string>
     <string name="wallpaper_description">See Soundcloud waveforms as your background</string>
+    <string name="loading">Loading…</string>
 </resources>

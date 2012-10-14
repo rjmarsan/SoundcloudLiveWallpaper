@@ -6,7 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
+import android.graphics.Paint.Align;
+import android.util.TypedValue;
 
 /**
  * The new and revised waveform drawer - now using more useful data!
@@ -33,12 +34,19 @@ public class WaveformDrawer {
 	long transitionDuration = 4*1000L;
 	int  colorDuration = 7*1000;
 	
+	String loadingtext = "Loading...";
+	
 	public WaveformDrawer(Context context) {
 		Resources res = context.getResources();
 		linepaint = new Paint();
 		linepaint.setStrokeWidth(strokeWidth);
 		linepaint.setAntiAlias(true);
     	linepaint.setColor(res.getColor(R.color.bar_color));
+    	linepaint.setTextAlign(Align.CENTER);
+    	linepaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
+    			              res.getInteger(R.integer.loading_text_size), 
+    			              res.getDisplayMetrics()));
+    	loadingtext = res.getString(R.string.loading);
     	transitionDuration = res.getInteger(R.integer.bar_transition_time);
     	colorDuration = res.getInteger(R.integer.color_transition_time);
     	horizontalscale = res.getInteger(R.integer.horizontal_scale);
@@ -156,6 +164,8 @@ public class WaveformDrawer {
             
         	
 		
+        } else {
+        	c.drawText(loadingtext, width/2, height/2, linepaint);
         }
         c.restore();
 
