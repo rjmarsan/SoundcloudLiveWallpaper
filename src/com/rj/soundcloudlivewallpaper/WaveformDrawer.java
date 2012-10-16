@@ -38,21 +38,25 @@ public class WaveformDrawer {
 	
 	public WaveformDrawer(Context context) {
 		Resources res = context.getResources();
+    	strokeWidth = getFromDIP(res,res.getInteger(R.integer.stroke_width));
 		linepaint = new Paint();
 		linepaint.setStrokeWidth(strokeWidth);
 		linepaint.setAntiAlias(true);
     	linepaint.setColor(res.getColor(R.color.bar_color));
     	linepaint.setTextAlign(Align.CENTER);
-    	linepaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
-    			              res.getInteger(R.integer.loading_text_size), 
-    			              res.getDisplayMetrics()));
+    	linepaint.setTextSize(getFromDIP(res,res.getInteger(R.integer.loading_text_size)));
     	loadingtext = res.getString(R.string.loading);
     	transitionDuration = res.getInteger(R.integer.bar_transition_time);
     	colorDuration = res.getInteger(R.integer.color_transition_time);
-    	horizontalscale = res.getInteger(R.integer.horizontal_scale);
-    	strokeWidth = res.getInteger(R.integer.stroke_width);
+    	horizontalscale = Math.round(getFromDIP(res,res.getInteger(R.integer.horizontal_scale))); //res.getInteger(R.integer.horizontal_scale);
     	scale = res.getInteger(R.integer.bar_scale_percent)/100f;
     	map = new ColorsMap(ColorsMap.fromResources(ColorsMap.DEFAULT_RESOURCES, context), colorDuration);
+	}
+	
+	public static float getFromDIP(Resources res, float value) {
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
+	              value, 
+	              res.getDisplayMetrics());
 	}
 	
 	public void cleanup() {
